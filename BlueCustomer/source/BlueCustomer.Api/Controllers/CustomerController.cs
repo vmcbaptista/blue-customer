@@ -1,4 +1,5 @@
 ﻿using BlueCustomer.Api.Models;
+using BlueCustomer.Core.Entities;
 using BlueCustomer.Core.Repositories;
 using Microsoft.AspNetCore.Mvc;
 
@@ -19,13 +20,20 @@ namespace BlueCustomer.Api.Controllers
         public async Task<ActionResult<IEnumerable<CustomerDto>>> Get(CancellationToken cancellationToken)
         {
             var customers = await _customerRepository.GetCustomers(cancellationToken).ConfigureAwait(false);
-            return Ok(customers.Select(c => new CustomerDto(c.Id, c.Name.FirstName, c.Name.Surname, c.Email.Value)));
+            return Ok(customers.Select(MapCustomerToDto));
         }
 
         [HttpGet("{id:Guid}")]
-        public ActionResult<CustomerDto> Get(Guid id, CancellationToken cancellationToken)
+        public async Task<ActionResult<CustomerDto>> GetById(Guid id, CancellationToken cancellationToken)
         {
-            throw new NotImplementedException();
+           var customer = await _customerRepository.GetCustomer(id, cancellationToken).ConfigureAwait(false);
+
+            if (customer == null)
+            {
+                return NotFound();
+            }
+
+            return Ok(MapCustomerToDto(customer));
         }
 
         [HttpPost]
@@ -44,6 +52,12 @@ namespace BlueCustomer.Api.Controllers
         public ActionResult Delete(Guid id, CancellationToken cancellationToken)
         {
             throw new NotImplementedException();
+        }
+
+
+        private CustomerDto MapCustomerToDto(Customer customer)
+        {
+            return new CustomerDto(customer.Id, customer.Name.FirstName, customer.Name.Surname, customer.Email.Value);
         }
     }
 }

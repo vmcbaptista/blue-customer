@@ -36,11 +36,46 @@ namespace BlueCustomer.Api.Tests
             customersList.Count.Should().Be(3);
             for (int i = 0; i < 3; i++)
             {
-                customersList[i].Id.Should().Be(customers[i].Id);
-                customersList[i].FirstName.Should().Be(customers[i].Name.FirstName);
-                customersList[i].Surname.Should().Be(customers[i].Name.Surname);
-                customersList[i].Email.Should().Be(customers[i].Email.Value);
+                AssertCustomerToDtoMap(customers[i], customersList[i]);
             }
+        }
+
+        [Test]
+        public async Task GetById_Shall_Return_The_Corresponding_Customer_When_Exists()
+        {
+            var faker = new AutoFaker<Customer>();
+            var customer = faker.Generate();
+            var cancellationToken = new CancellationToken();
+            _customerRepository.GetCustomer(customer.Id, cancellationToken).Returns(customer);
+
+            var result = await _underTest.GetById(customer.Id, cancellationToken);
+
+            var okResult = result.Result.Should().BeOfType<OkObjectResult>().Subject;
+            okResult.StatusCode.Should().Be(StatusCodes.Status200OK);
+            var customerDto = okResult.Value.Should().BeAssignableTo<CustomerDto>().Subject;
+            AssertCustomerToDtoMap(customer, customerDto);
+
+        }
+
+        [Test]
+        public async Task GetById_Shall_Return_Not_Found_When_The_Customer_Does_Not_Exists()
+        {
+            var userToFind = Guid.NewGuid();
+            var cancellationToken = new CancellationToken();
+            _customerRepository.GetCustomer(userToFind, cancellationToken).Returns((Customer?)null);
+
+            var result = await _underTest.GetById(userToFind, cancellationToken);
+
+            var okResult = result.Result.Should().BeOfType<NotFoundResult>().Subject;
+            okResult.StatusCode.Should().Be(StatusCodes.Status404NotFound);
+
+        }
+        private static void AssertCustomerToDtoMap(Customer customer, CustomerDto customerDto)
+        {
+            customerDto.Id.Should().Be(customer.Id);
+            customerDto.FirstName.Should().Be(customer.Name.FirstName);
+            customerDto.Surname.Should().Be(customer.Name.Surname);
+            customerDto.Email.Should().Be(customer.Email.Value);
         }
     }
 }
