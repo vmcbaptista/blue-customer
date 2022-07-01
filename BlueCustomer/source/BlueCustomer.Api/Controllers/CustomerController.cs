@@ -51,9 +51,18 @@ namespace BlueCustomer.Api.Controllers
         }
 
         [HttpDelete("{id:Guid}")]
-        public ActionResult Delete(Guid id, CancellationToken cancellationToken)
+        public async Task<ActionResult> DeleteAsync(Guid id, CancellationToken cancellationToken)
         {
-            throw new NotImplementedException();
+            var customer = await _customerRepository.GetCustomer(id, cancellationToken).ConfigureAwait(false);
+            
+            if (customer == null)
+            {
+                return NotFound();
+            }
+            
+            await _customerRepository.DeleteCustomer(id, cancellationToken);
+            
+            return NoContent();
         }
 
 

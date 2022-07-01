@@ -73,7 +73,7 @@ namespace BlueCustomer.Api.Tests
         [Test]
         public async Task Post_Shall_Return_201_When_Create_Succeeds()
         {
-            var insertCustomerDto = new InsertCustomerDto(Guid.NewGuid(), AutoFaker.Generate<string>(), AutoFaker.Generate<string>(), AutoFaker.Generate<string>(), AutoFaker.Generate<string>());
+            var insertCustomerDto = new AutoFaker<InsertCustomerDto>().Generate();
             var insertCustomer = new Customer(insertCustomerDto.Id, new Name(insertCustomerDto.FirstName, insertCustomerDto.Surname), new Email(insertCustomerDto.Email), new Password(insertCustomerDto.Password));
             var cancellationToken = new CancellationToken();
             _customerRepository.CreateCustomer(Arg.Is<Customer>(c => c.Id == insertCustomerDto.Id), cancellationToken).Returns(insertCustomer);
@@ -84,6 +84,34 @@ namespace BlueCustomer.Api.Tests
             createdResult.StatusCode.Should().Be(StatusCodes.Status201Created);
             var customerDto = createdResult.Value.Should().BeOfType<CustomerDto>().Subject;
             AssertCustomerToDtoMap(insertCustomer, customerDto);
+        }
+
+        [Test]
+        public async Task Delete_Shall_Return_204_When_Delete_Succeeds()
+        {
+            var customerToDelete = new AutoFaker<Customer>().Generate();
+            var cancellationToken = new CancellationToken();
+            _customerRepository.GetCustomer(customerToDelete.Id, cancellationToken).Returns(customerToDelete);
+            _customerRepository.DeleteCustomer(customerToDelete.Id, cancellationToken).Returns(Task.CompletedTask);
+
+            var result = await _underTest.DeleteAsync(customerToDelete.Id, cancellationToken);
+
+            var createdResult = result.Should().BeOfType<NoContentResult>().Subject;
+            createdResult.StatusCode.Should().Be(StatusCodes.Status204NoContent);
+        }
+
+        [Test]
+        public async Task Delete_Shall_Return_404_When_Attempting_Delete_Of_Unavailable_Customer()
+        {
+            var customerToDelete = new AutoFaker<Customer>().Generate();
+            var cancellationToken = new CancellationToken();
+            _customerRepository.GetCustomer(customerToDelete.Id, cancellationToken).Returns((Customer?)null);
+
+            var result = await _underTest.DeleteAsync(customerToDelete.Id, cancellationToken);
+
+            var createdResult = result.Should().BeOfType<NotFoundResult>().Subject;
+            createdResult.StatusCode.Should().Be(StatusCodes.Status404NotFound);
+            _customerRepository.DidNotReceive().DeleteCustomer(Arg.Any<Guid>(), Arg.Any<CancellationToken>());
         }
 
         private static void AssertCustomerToDtoMap(Customer customer, CustomerDto customerDto)
