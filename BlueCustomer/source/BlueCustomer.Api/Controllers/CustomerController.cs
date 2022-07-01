@@ -1,6 +1,7 @@
 ﻿using BlueCustomer.Api.Models;
 using BlueCustomer.Core.Entities;
 using BlueCustomer.Core.Repositories;
+using BlueCustomer.Core.ValueObjects;
 using Microsoft.AspNetCore.Mvc;
 
 namespace BlueCustomer.Api.Controllers
@@ -37,13 +38,14 @@ namespace BlueCustomer.Api.Controllers
         }
 
         [HttpPost]
-        public ActionResult Post([FromBody] UpsertCustomerDto customerDto, CancellationToken cancellationToken)
+        public async Task<ActionResult<CustomerDto>> Post([FromBody] InsertCustomerDto customerDto, CancellationToken cancellationToken)
         {
-            throw new NotImplementedException();
+            var customer = await _customerRepository.CreateCustomer(MapDtoToCustomer(customerDto), cancellationToken);
+            return CreatedAtAction(nameof(GetById), new { id = customerDto.Id }, MapCustomerToDto(customer));
         }
 
         [HttpPut("{id:Guid}")]
-        public ActionResult Put(Guid id, [FromBody] UpsertCustomerDto customerDto, CancellationToken cancellationToken)
+        public ActionResult Put(Guid id, [FromBody] InsertCustomerDto customerDto, CancellationToken cancellationToken)
         {
             throw new NotImplementedException();
         }
@@ -58,6 +60,16 @@ namespace BlueCustomer.Api.Controllers
         private CustomerDto MapCustomerToDto(Customer customer)
         {
             return new CustomerDto(customer.Id, customer.Name.FirstName, customer.Name.Surname, customer.Email.Value);
+        }
+
+        private Customer MapDtoToCustomer(InsertCustomerDto customer)
+        {
+            var id = customer.Id;
+            var name = new Name(customer.FirstName, customer.Surname);
+            var email = new Email(customer.Email);
+            var password = new Password(customer.Password);
+
+            return new Customer(id, name, email, password);
         }
     }
 }

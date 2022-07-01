@@ -3,6 +3,7 @@ using BlueCustomer.Api.Controllers;
 using BlueCustomer.Api.Models;
 using BlueCustomer.Core.Entities;
 using BlueCustomer.Core.Repositories;
+using BlueCustomer.Core.ValueObjects;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -54,7 +55,6 @@ namespace BlueCustomer.Api.Tests
             okResult.StatusCode.Should().Be(StatusCodes.Status200OK);
             var customerDto = okResult.Value.Should().BeAssignableTo<CustomerDto>().Subject;
             AssertCustomerToDtoMap(customer, customerDto);
-
         }
 
         [Test]
@@ -66,10 +66,26 @@ namespace BlueCustomer.Api.Tests
 
             var result = await _underTest.GetById(userToFind, cancellationToken);
 
-            var okResult = result.Result.Should().BeOfType<NotFoundResult>().Subject;
-            okResult.StatusCode.Should().Be(StatusCodes.Status404NotFound);
-
+            var notFoundResult = result.Result.Should().BeOfType<NotFoundResult>().Subject;
+            notFoundResult.StatusCode.Should().Be(StatusCodes.Status404NotFound);
         }
+
+        [Test]
+        public async Task Post_Shall_Return_201_When_Create_Succeeds()
+        {
+            var insertCustomerDto = new InsertCustomerDto(Guid.NewGuid(), AutoFaker.Generate<string>(), AutoFaker.Generate<string>(), AutoFaker.Generate<string>(), AutoFaker.Generate<string>());
+            var insertCustomer = new Customer(insertCustomerDto.Id, new Name(insertCustomerDto.FirstName, insertCustomerDto.Surname), new Email(insertCustomerDto.Email), new Password(insertCustomerDto.Password));
+            var cancellationToken = new CancellationToken();
+            _customerRepository.CreateCustomer(Arg.Is<Customer>(c => c.Id == insertCustomerDto.Id), cancellationToken).Returns(insertCustomer);
+
+            var result = await _underTest.Post(insertCustomerDto, cancellationToken);
+
+            var createdResult = result.Result.Should().BeOfType<CreatedAtActionResult>().Subject;
+            createdResult.StatusCode.Should().Be(StatusCodes.Status201Created);
+            var customerDto = createdResult.Value.Should().BeOfType<CustomerDto>().Subject;
+            AssertCustomerToDtoMap(insertCustomer, customerDto);
+        }
+
         private static void AssertCustomerToDtoMap(Customer customer, CustomerDto customerDto)
         {
             customerDto.Id.Should().Be(customer.Id);
