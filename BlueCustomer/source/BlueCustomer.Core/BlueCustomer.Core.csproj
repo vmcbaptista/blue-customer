@@ -1,13 +1,9 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>net6.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
   </PropertyGroup>
-
-  <ItemGroup>
-    <Compile Include="C:\Users\vmcba\source\repos\vmcbaptista\blue-customer\BlueCustomer\source\BlueCustomer.Core\Class1.cs" Link="Class1.cs" />
-  </ItemGroup>
 
 </Project>
