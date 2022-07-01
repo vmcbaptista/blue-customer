@@ -3,15 +3,17 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.2.32519.379
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BlueCustomer.Api", "source\BlueCustomer.Api\BlueCustomer.Api.csproj", "{3B375AB7-C505-4B44-B721-8D39BC93321A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BlueCustomer.Api", "source\BlueCustomer.Api\BlueCustomer.Api.csproj", "{3B375AB7-C505-4B44-B721-8D39BC93321A}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{0D5ED126-6544-44DA-90A7-F1192F84A094}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BlueCustomer.Infrastructure", "source\BlueCustomer.Infrastructure\BlueCustomer.Infrastructure.csproj", "{080D34EC-B923-4243-814C-2A5F2E9F1CDC}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BlueCustomer.Infrastructure", "source\BlueCustomer.Infrastructure\BlueCustomer.Infrastructure.csproj", "{080D34EC-B923-4243-814C-2A5F2E9F1CDC}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BlueCustomer.Core", "source\BlueCustomer.Core\BlueCustomer.Core.csproj", "{0A73208F-64E5-451E-BFEA-F55A7534C815}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BlueCustomer.Core", "source\BlueCustomer.Core\BlueCustomer.Core.csproj", "{0A73208F-64E5-451E-BFEA-F55A7534C815}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BlueCustomer.Core.Tests", "tests\BlueCustomer.Core.Tests\BlueCustomer.Core.Tests.csproj", "{E7848BA7-02DE-44F4-B656-D37A9770CEA5}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BlueCustomer.Core.Tests", "tests\BlueCustomer.Core.Tests\BlueCustomer.Core.Tests.csproj", "{E7848BA7-02DE-44F4-B656-D37A9770CEA5}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BlueCustomer.Api.Tests", "tests\BlueCustomer.Api.Tests\BlueCustomer.Api.Tests.csproj", "{CF51B40C-4995-41EA-B7D0-8625ECD012CF}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -35,12 +37,17 @@ Global
 		{E7848BA7-02DE-44F4-B656-D37A9770CEA5}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E7848BA7-02DE-44F4-B656-D37A9770CEA5}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E7848BA7-02DE-44F4-B656-D37A9770CEA5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CF51B40C-4995-41EA-B7D0-8625ECD012CF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CF51B40C-4995-41EA-B7D0-8625ECD012CF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CF51B40C-4995-41EA-B7D0-8625ECD012CF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CF51B40C-4995-41EA-B7D0-8625ECD012CF}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{E7848BA7-02DE-44F4-B656-D37A9770CEA5} = {0D5ED126-6544-44DA-90A7-F1192F84A094}
+		{CF51B40C-4995-41EA-B7D0-8625ECD012CF} = {0D5ED126-6544-44DA-90A7-F1192F84A094}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {7019704D-9822-4B7A-A4E7-645173263472}
