@@ -41,6 +41,7 @@ namespace BlueCustomer.Api.Controllers
         public async Task<ActionResult<CustomerDto>> Post([FromBody] UpsertCustomerDto customerDto, CancellationToken cancellationToken)
         {
             await _customerRepository.CreateCustomer(MapUpsertDtoToCustomer(customerDto), cancellationToken);
+            await _customerRepository.SaveChanges(cancellationToken).ConfigureAwait(false);
             return CreatedAtAction(nameof(GetById), new { id = customerDto.Id }, MapUpsertDtoToReadDto(customerDto));
         }
 
@@ -62,6 +63,7 @@ namespace BlueCustomer.Api.Controllers
             customer.Update(new Name(customerDto.FirstName, customerDto.Surname), new Email(customerDto.Email), new Password(customerDto.Password));
 
             await _customerRepository.UpdateCustomer(customer, cancellationToken).ConfigureAwait(false);
+            await _customerRepository.SaveChanges(cancellationToken).ConfigureAwait(false);
 
             return NoContent();
         }
@@ -76,8 +78,9 @@ namespace BlueCustomer.Api.Controllers
                 return NotFound();
             }
             
-            await _customerRepository.DeleteCustomer(id, cancellationToken);
-            
+            await _customerRepository.DeleteCustomer(customer, cancellationToken);
+            await _customerRepository.SaveChanges(cancellationToken).ConfigureAwait(false);
+
             return NoContent();
         }
 

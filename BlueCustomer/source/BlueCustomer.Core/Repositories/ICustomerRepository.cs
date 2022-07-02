@@ -13,6 +13,7 @@ namespace BlueCustomer.Core.Repositories
         Task<IReadOnlyCollection<Customer>> GetCustomers(CancellationToken cancellationToken);
         Task CreateCustomer(Customer customer, CancellationToken cancellationToken);
         Task UpdateCustomer(Customer customer, CancellationToken cancellationToken);
-        Task DeleteCustomer(Guid id, CancellationToken cancellationToken);        
+        Task DeleteCustomer(Customer customer, CancellationToken cancellationToken);
+        Task SaveChanges(CancellationToken cancellationToken);
     }
 }

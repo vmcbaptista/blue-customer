@@ -92,7 +92,7 @@ namespace BlueCustomer.Api.Tests
             var customerToDelete = new AutoFaker<Customer>().Generate();
             var cancellationToken = new CancellationToken();
             _customerRepository.GetCustomer(customerToDelete.Id, cancellationToken).Returns(customerToDelete);
-            _customerRepository.DeleteCustomer(customerToDelete.Id, cancellationToken).Returns(Task.CompletedTask);
+            _customerRepository.DeleteCustomer(customerToDelete, cancellationToken).Returns(Task.CompletedTask);
 
             var result = await _underTest.DeleteAsync(customerToDelete.Id, cancellationToken);
 
@@ -111,7 +111,7 @@ namespace BlueCustomer.Api.Tests
 
             var createdResult = result.Should().BeOfType<NotFoundResult>().Subject;
             createdResult.StatusCode.Should().Be(StatusCodes.Status404NotFound);
-            _customerRepository.DidNotReceive().DeleteCustomer(Arg.Any<Guid>(), Arg.Any<CancellationToken>());
+            _customerRepository.DidNotReceive().DeleteCustomer(Arg.Any<Customer>(), Arg.Any<CancellationToken>());
         }
 
         [Test]

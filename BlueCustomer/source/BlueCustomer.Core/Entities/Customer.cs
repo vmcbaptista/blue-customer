@@ -9,6 +9,8 @@ namespace BlueCustomer.Core.Entities
 {
     public class Customer
     {
+        private Customer() { }
+
         public Customer(Guid id, Name name, Email email, Password password)
         {
             if (id == Guid.Empty) throw new Exception("Id is invalid");
