@@ -23,8 +23,19 @@ namespace BlueCustomer.Core.Entities
         }
 
         public Guid Id { get; }
-        public Name Name { get; }
-        public Email Email { get; }
-        public Password Password { get; }
+        public Name Name { get; private set; }
+        public Email Email { get; private set; }
+        public Password Password { get;  private set; }
+
+        public void Update(Name name, Email email, Password password)
+        {
+            if (name == null) throw new Exception("Name is required");
+            if (email == null) throw new Exception("Email is required");
+            if (password == null) throw new Exception("Password is required");
+
+            Name = name;
+            Email = email;
+            Password = password;
+        }
     }
 }

@@ -73,10 +73,10 @@ namespace BlueCustomer.Api.Tests
         [Test]
         public async Task Post_Shall_Return_201_When_Create_Succeeds()
         {
-            var insertCustomerDto = new AutoFaker<InsertCustomerDto>().Generate();
+            var insertCustomerDto = new AutoFaker<UpsertCustomerDto>().Generate();
             var insertCustomer = new Customer(insertCustomerDto.Id, new Name(insertCustomerDto.FirstName, insertCustomerDto.Surname), new Email(insertCustomerDto.Email), new Password(insertCustomerDto.Password));
             var cancellationToken = new CancellationToken();
-            _customerRepository.CreateCustomer(Arg.Is<Customer>(c => c.Id == insertCustomerDto.Id), cancellationToken).Returns(insertCustomer);
+            _customerRepository.CreateCustomer(Arg.Is<Customer>(c => c.Id == insertCustomerDto.Id), cancellationToken).Returns(Task.CompletedTask);
 
             var result = await _underTest.Post(insertCustomerDto, cancellationToken);
 
@@ -112,6 +112,50 @@ namespace BlueCustomer.Api.Tests
             var createdResult = result.Should().BeOfType<NotFoundResult>().Subject;
             createdResult.StatusCode.Should().Be(StatusCodes.Status404NotFound);
             _customerRepository.DidNotReceive().DeleteCustomer(Arg.Any<Guid>(), Arg.Any<CancellationToken>());
+        }
+
+        [Test]
+        public async Task Put_Shall_Return_204_When_Update_Succeeds()
+        {
+            var originalCustomer = new AutoFaker<Customer>().Generate();
+            var customerToUpdate = new AutoFaker<UpsertCustomerDto>().RuleFor(c => c.Id, originalCustomer.Id).Generate();
+            var cancellationToken = new CancellationToken();
+            _customerRepository.GetCustomer(customerToUpdate.Id, cancellationToken).Returns(originalCustomer);
+            _customerRepository.UpdateCustomer(Arg.Is<Customer>(c => c.Id == customerToUpdate.Id), cancellationToken).Returns(Task.CompletedTask);
+
+            var result = await _underTest.PutAsync(customerToUpdate.Id, customerToUpdate, cancellationToken);
+
+            var createdResult = result.Should().BeOfType<NoContentResult>().Subject;
+            createdResult.StatusCode.Should().Be(StatusCodes.Status204NoContent);
+            _customerRepository.Received(1).UpdateCustomer(Arg.Is<Customer>(c => c.Id == customerToUpdate.Id), cancellationToken);
+        }
+
+        [Test]
+        public async Task Put_Shall_Return_400_When_Route_Id_Does_Not_Match_Body_Id()
+        {
+            var customerToUpdate = new AutoFaker<UpsertCustomerDto>().Generate();
+            var cancellationToken = new CancellationToken();
+
+            var result = await _underTest.PutAsync(Guid.NewGuid(), customerToUpdate, cancellationToken);
+
+            var createdResult = result.Should().BeOfType<BadRequestResult>().Subject;
+            createdResult.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+            _customerRepository.DidNotReceive().UpdateCustomer(Arg.Any<Customer>(), Arg.Any<CancellationToken>());
+            _customerRepository.DidNotReceive().GetCustomer(Arg.Any<Guid>(), Arg.Any<CancellationToken>());
+        }
+
+        [Test]
+        public async Task Put_Shall_Return_404_When_Attempting_Update_Of_Unavailable_Customer()
+        {
+            var customerToUpdate = new AutoFaker<UpsertCustomerDto>().Generate();
+            var cancellationToken = new CancellationToken();
+            _customerRepository.GetCustomer(customerToUpdate.Id, cancellationToken).Returns((Customer?)null);
+
+            var result = await _underTest.PutAsync(customerToUpdate.Id, customerToUpdate, cancellationToken);
+
+            var createdResult = result.Should().BeOfType<NotFoundResult>().Subject;
+            createdResult.StatusCode.Should().Be(StatusCodes.Status404NotFound);
+            _customerRepository.DidNotReceive().UpdateCustomer(Arg.Any<Customer>(), Arg.Any<CancellationToken>());
         }
 
         private static void AssertCustomerToDtoMap(Customer customer, CustomerDto customerDto)

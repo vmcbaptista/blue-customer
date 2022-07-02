@@ -21,7 +21,7 @@ namespace BlueCustomer.Api.Controllers
         public async Task<ActionResult<IEnumerable<CustomerDto>>> Get(CancellationToken cancellationToken)
         {
             var customers = await _customerRepository.GetCustomers(cancellationToken).ConfigureAwait(false);
-            return Ok(customers.Select(MapCustomerToDto));
+            return Ok(customers.Select(MapCustomerToReadDto));
         }
 
         [HttpGet("{id:Guid}")]
@@ -34,20 +34,36 @@ namespace BlueCustomer.Api.Controllers
                 return NotFound();
             }
 
-            return Ok(MapCustomerToDto(customer));
+            return Ok(MapCustomerToReadDto(customer));
         }
 
         [HttpPost]
-        public async Task<ActionResult<CustomerDto>> Post([FromBody] InsertCustomerDto customerDto, CancellationToken cancellationToken)
+        public async Task<ActionResult<CustomerDto>> Post([FromBody] UpsertCustomerDto customerDto, CancellationToken cancellationToken)
         {
-            var customer = await _customerRepository.CreateCustomer(MapDtoToCustomer(customerDto), cancellationToken);
-            return CreatedAtAction(nameof(GetById), new { id = customerDto.Id }, MapCustomerToDto(customer));
+            await _customerRepository.CreateCustomer(MapUpsertDtoToCustomer(customerDto), cancellationToken);
+            return CreatedAtAction(nameof(GetById), new { id = customerDto.Id }, MapUpsertDtoToReadDto(customerDto));
         }
 
         [HttpPut("{id:Guid}")]
-        public ActionResult Put(Guid id, [FromBody] InsertCustomerDto customerDto, CancellationToken cancellationToken)
+        public async Task<ActionResult> PutAsync(Guid id, [FromBody] UpsertCustomerDto customerDto, CancellationToken cancellationToken)
         {
-            throw new NotImplementedException();
+            if (id != customerDto.Id)
+            {
+                return BadRequest();
+            }
+
+            var customer = await _customerRepository.GetCustomer(id, cancellationToken).ConfigureAwait(false);
+
+            if (customer == null)
+            {
+                return NotFound();
+            }
+
+            customer.Update(new Name(customerDto.FirstName, customerDto.Surname), new Email(customerDto.Email), new Password(customerDto.Password));
+
+            await _customerRepository.UpdateCustomer(customer, cancellationToken).ConfigureAwait(false);
+
+            return NoContent();
         }
 
         [HttpDelete("{id:Guid}")]
@@ -65,13 +81,17 @@ namespace BlueCustomer.Api.Controllers
             return NoContent();
         }
 
+        private CustomerDto MapUpsertDtoToReadDto(UpsertCustomerDto customer)
+        {
+            return new CustomerDto(customer.Id, customer.FirstName, customer.Surname, customer.Email);
+        }
 
-        private CustomerDto MapCustomerToDto(Customer customer)
+        private CustomerDto MapCustomerToReadDto(Customer customer)
         {
             return new CustomerDto(customer.Id, customer.Name.FirstName, customer.Name.Surname, customer.Email.Value);
         }
 
-        private Customer MapDtoToCustomer(InsertCustomerDto customer)
+        private Customer MapUpsertDtoToCustomer(UpsertCustomerDto customer)
         {
             var id = customer.Id;
             var name = new Name(customer.FirstName, customer.Surname);
