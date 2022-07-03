@@ -1,10 +1,14 @@
 using BlueCustomer.Core.Repositories;
 using BlueCustomer.Infrastructure;
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.EntityFrameworkCore;
+using System.Reflection;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
+builder.Services.AddDataProtection();
+builder.Services.AddTransient(sp => sp.GetRequiredService<IDataProtectionProvider>().CreateProtector("BlueProtector"));
 builder.Services.AddScoped<ICustomerRepository, CustomerRepository>();
 builder.Services.AddDbContext<BlueContext>(options => options.UseSqlServer(builder.Configuration.GetConnectionString("Blue")));
 builder.Services.AddControllers();

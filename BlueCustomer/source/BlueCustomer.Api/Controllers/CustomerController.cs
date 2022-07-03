@@ -2,6 +2,7 @@
 using BlueCustomer.Core.Entities;
 using BlueCustomer.Core.Repositories;
 using BlueCustomer.Core.ValueObjects;
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Mvc;
 
 namespace BlueCustomer.Api.Controllers
@@ -11,10 +12,12 @@ namespace BlueCustomer.Api.Controllers
     public class CustomerController : ControllerBase
     {
         private readonly ICustomerRepository _customerRepository;
+        private readonly IDataProtector _dataProtector;
 
-        public CustomerController(ICustomerRepository customerRepository)
+        public CustomerController(ICustomerRepository customerRepository, IDataProtector dataProtector)
         {
             _customerRepository = customerRepository;
+            _dataProtector = dataProtector;
         }
 
         [HttpGet]
@@ -60,7 +63,7 @@ namespace BlueCustomer.Api.Controllers
                 return NotFound();
             }
 
-            customer.Update(new Name(customerDto.FirstName, customerDto.Surname), new Email(customerDto.Email), new Password(customerDto.Password));
+            customer.Update(new Name(customerDto.FirstName, customerDto.Surname), new Email(customerDto.Email), new Password(_dataProtector.Protect(customerDto.Password)));
 
             await _customerRepository.UpdateCustomer(customer, cancellationToken).ConfigureAwait(false);
             await _customerRepository.SaveChanges(cancellationToken).ConfigureAwait(false);
@@ -99,7 +102,7 @@ namespace BlueCustomer.Api.Controllers
             var id = customer.Id;
             var name = new Name(customer.FirstName, customer.Surname);
             var email = new Email(customer.Email);
-            var password = new Password(customer.Password);
+            var password = new Password(_dataProtector.Protect(customer.Password));
 
             return new Customer(id, name, email, password);
         }
