@@ -29,12 +29,8 @@ using (var scope = app.Services.CreateScope())
     logger.LogInformation("Database migrated");
 }
 
-// Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
+app.UseSwagger();
+app.UseSwaggerUI();
 
 app.UseHttpsRedirection();
 

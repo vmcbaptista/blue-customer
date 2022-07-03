@@ -1,0 +1,29 @@
+version: '3.4'
+
+services:
+  bluecustomer.api.integrationtests:
+    image: ${DOCKER_REGISTRY-}bluecustomerapiintegrationtests
+    build:
+      context: .
+      dockerfile: tests/BlueCustomer.Api.IntegrationTests/Dockerfile
+    environment:
+      - API_URL=http://bluecustomer.api
+      - "CONNECTION_STRING=Server=mssql;Database=Blue;User Id=SA;Password=Blue@Password1234" 
+    entrypoint: bash wait_for_it.sh bluecustomer.api:80 -t 0 -- dotnet test
+    depends_on:
+      - bluecustomer.api
+  bluecustomer.api:
+    image: ${DOCKER_REGISTRY-}bluecustomerapi
+    build:
+      context: source
+      dockerfile: BlueCustomer.Api/Dockerfile
+    depends_on:
+      - mssql
+    environment:
+      - "ConnectionStrings__Blue=Server=mssql;Database=Blue;User Id=SA;Password=Blue@Password1234" 
+  mssql:
+    image: "mcr.microsoft.com/mssql/server"
+    environment:
+      SA_PASSWORD: "Blue@Password1234"
+      ACCEPT_EULA: "Y"
+

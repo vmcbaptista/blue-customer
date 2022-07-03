@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "BlueCustomer.Api.IntegrationTests": {
+      "commandName": "Project"
+    },
+    "Docker": {
+      "commandName": "Docker"
+    }
+  }
+}

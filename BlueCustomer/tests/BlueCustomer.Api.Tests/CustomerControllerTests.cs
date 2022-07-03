@@ -4,6 +4,7 @@ using BlueCustomer.Api.Models;
 using BlueCustomer.Core.Entities;
 using BlueCustomer.Core.Repositories;
 using BlueCustomer.Core.ValueObjects;
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -12,13 +13,15 @@ namespace BlueCustomer.Api.Tests
     public class CustomerControllerTests
     {
         private ICustomerRepository _customerRepository;
+        private IDataProtector _dataProtector;
         private CustomerController _underTest;
 
         [SetUp]
         public void Setup()
         {
             _customerRepository = Substitute.For<ICustomerRepository>();
-            _underTest = new CustomerController(_customerRepository);
+            _dataProtector = Substitute.For<IDataProtector>();
+            _underTest = new CustomerController(_customerRepository, _dataProtector);
         }
 
         [Test]
@@ -83,7 +86,8 @@ namespace BlueCustomer.Api.Tests
             var createdResult = result.Result.Should().BeOfType<CreatedAtActionResult>().Subject;
             createdResult.StatusCode.Should().Be(StatusCodes.Status201Created);
             var customerDto = createdResult.Value.Should().BeOfType<CustomerDto>().Subject;
-            AssertCustomerToDtoMap(insertCustomer, customerDto);
+            AssertCustomerToDtoMap(insertCustomer, customerDto); 
+            _dataProtector.Received(1).Protect(insertCustomerDto.Password);
         }
 
         [Test]
@@ -128,6 +132,7 @@ namespace BlueCustomer.Api.Tests
             var createdResult = result.Should().BeOfType<NoContentResult>().Subject;
             createdResult.StatusCode.Should().Be(StatusCodes.Status204NoContent);
             _customerRepository.Received(1).UpdateCustomer(Arg.Is<Customer>(c => c.Id == customerToUpdate.Id), cancellationToken);
+            _dataProtector.Received(1).Protect(customerToUpdate.Password);
         }
 
         [Test]
