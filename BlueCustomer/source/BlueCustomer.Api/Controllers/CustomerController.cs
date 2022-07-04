@@ -1,7 +1,12 @@
 ﻿using BlueCustomer.Api.Models;
+using BlueCustomer.Core.Commands;
 using BlueCustomer.Core.Entities;
+using BlueCustomer.Core.Errors;
+using BlueCustomer.Core.Handlers;
+using BlueCustomer.Core.Queries;
 using BlueCustomer.Core.Repositories;
 using BlueCustomer.Core.ValueObjects;
+using FluentResults;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Mvc;
 
@@ -13,11 +18,15 @@ namespace BlueCustomer.Api.Controllers
     {
         private readonly ICustomerRepository _customerRepository;
         private readonly IDataProtector _dataProtector;
+        private readonly IUpdateCustomerHandler _updateCommandHandler;
+        private readonly IGetCustomerByIdHandler _getCustomerByIdHandler;
 
-        public CustomerController(ICustomerRepository customerRepository, IDataProtector dataProtector)
+        public CustomerController(ICustomerRepository customerRepository, IDataProtector dataProtector, IUpdateCustomerHandler commandHandler, IGetCustomerByIdHandler getCustomerByIdHandler)
         {
             _customerRepository = customerRepository;
             _dataProtector = dataProtector;
+            _updateCommandHandler = commandHandler;
+            _getCustomerByIdHandler = getCustomerByIdHandler;
         }
 
         [HttpGet]
@@ -30,14 +39,19 @@ namespace BlueCustomer.Api.Controllers
         [HttpGet("{id:Guid}")]
         public async Task<ActionResult<CustomerDto>> GetById(Guid id, CancellationToken cancellationToken)
         {
-           var customer = await _customerRepository.GetCustomer(id, cancellationToken).ConfigureAwait(false);
+           var getCustomerByIdResult = await _getCustomerByIdHandler.Handle(new GetCustomerById(id), cancellationToken).ConfigureAwait(false);
 
-            if (customer == null)
+            if (getCustomerByIdResult.IsSuccess)
+            {
+                return Ok(MapCustomerToReadDto(getCustomerByIdResult.Value));
+            }
+
+            if (getCustomerByIdResult.HasError<DomainErrors.Customer.NotFound>())
             {
                 return NotFound();
             }
 
-            return Ok(MapCustomerToReadDto(customer));
+            return Problem(getCustomerByIdResult);
         }
 
         [HttpPost]
@@ -49,26 +63,26 @@ namespace BlueCustomer.Api.Controllers
         }
 
         [HttpPut("{id:Guid}")]
-        public async Task<ActionResult> PutAsync(Guid id, [FromBody] UpsertCustomerDto customerDto, CancellationToken cancellationToken)
+        public async Task<ActionResult> PutAsync(Guid id, [FromBody] UpdateCustomer updateCustomer, CancellationToken cancellationToken)
         {
-            if (id != customerDto.Id)
+            if (id != updateCustomer.Id)
             {
                 return BadRequest();
             }
 
-            var customer = await _customerRepository.GetCustomer(id, cancellationToken).ConfigureAwait(false);
+            var updateResult = await _updateCommandHandler.Handle(updateCustomer, cancellationToken).ConfigureAwait(false);
 
-            if (customer == null)
+            if (updateResult.IsSuccess)
             {
+                return NoContent();
+            }
+
+            if (updateResult.HasError<DomainErrors.Customer.NotFound>()) 
+            { 
                 return NotFound();
             }
 
-            customer.Update(new Name(customerDto.FirstName, customerDto.Surname), new Email(customerDto.Email), new Password(_dataProtector.Protect(customerDto.Password)));
-
-            await _customerRepository.UpdateCustomer(customer, cancellationToken).ConfigureAwait(false);
-            await _customerRepository.SaveChanges(cancellationToken).ConfigureAwait(false);
-
-            return NoContent();
+            return Problem(updateResult);
         }
 
         [HttpDelete("{id:Guid}")]
@@ -85,6 +99,11 @@ namespace BlueCustomer.Api.Controllers
             await _customerRepository.SaveChanges(cancellationToken).ConfigureAwait(false);
 
             return NoContent();
+        }
+
+        private ObjectResult Problem(ResultBase result)
+        {
+            return Problem(string.Join(';', result.Errors));
         }
 
         private CustomerDto MapUpsertDtoToReadDto(UpsertCustomerDto customer)
