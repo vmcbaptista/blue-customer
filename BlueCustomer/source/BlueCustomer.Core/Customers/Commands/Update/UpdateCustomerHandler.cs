@@ -26,7 +26,29 @@ namespace BlueCustomer.Core.Customers.Commands.Update
                 return Result.Fail(new CustomerNotFound());
             }
 
-            customer.Update(new Name(command.FirstName, command.Surname), new Email(command.Email), new Password(_dataProtector.Protect(command.Password)));
+            var nameCreateResult = Name.Create(command.FirstName, command.Surname);
+            if (nameCreateResult.IsFailed)
+            {
+                return nameCreateResult.ToResult();
+            }
+
+            var emailCreateResult = Email.Create(command.Email);
+            if (emailCreateResult.IsFailed)
+            {
+                return emailCreateResult.ToResult();
+            }
+
+            var passwordCreateResult = Password.Create(_dataProtector.Protect(command.Password));
+            if (passwordCreateResult.IsFailed)
+            {
+                return passwordCreateResult.ToResult();
+            }
+
+            var customerUpdateResult = customer.Update(nameCreateResult.Value, emailCreateResult.Value, passwordCreateResult.Value);
+            if (customerUpdateResult.IsFailed)
+            {
+                return customerUpdateResult;
+            }
 
             await _customerRepository.UpdateCustomer(customer, cancellationToken).ConfigureAwait(false);
             await _customerRepository.SaveChanges(cancellationToken).ConfigureAwait(false);

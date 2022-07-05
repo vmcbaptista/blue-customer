@@ -13,11 +13,13 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BlueCustomer.Core", "source
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BlueCustomer.Core.Tests", "tests\BlueCustomer.Core.Tests\BlueCustomer.Core.Tests.csproj", "{E7848BA7-02DE-44F4-B656-D37A9770CEA5}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BlueCustomer.Api.Tests", "tests\BlueCustomer.Api.Tests\BlueCustomer.Api.Tests.csproj", "{CF51B40C-4995-41EA-B7D0-8625ECD012CF}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BlueCustomer.Api.Tests", "tests\BlueCustomer.Api.Tests\BlueCustomer.Api.Tests.csproj", "{CF51B40C-4995-41EA-B7D0-8625ECD012CF}"
 EndProject
 Project("{E53339B2-1760-4266-BCC7-CA923CBCF16C}") = "docker-compose", "docker-compose.dcproj", "{90B82EE3-DA73-4B56-A534-E1AEB98F44CF}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BlueCustomer.Api.IntegrationTests", "tests\BlueCustomer.Api.IntegrationTests\BlueCustomer.Api.IntegrationTests.csproj", "{D9ABC56C-2BA9-4A45-81CE-595B7AF3C1EE}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BlueCustomer.Api.IntegrationTests", "tests\BlueCustomer.Api.IntegrationTests\BlueCustomer.Api.IntegrationTests.csproj", "{D9ABC56C-2BA9-4A45-81CE-595B7AF3C1EE}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BlueCustomer.Tests.Common", "..\tests\BlueCustomer.Tests.Common\BlueCustomer.Tests.Common.csproj", "{60951FED-FE2E-48A1-BA2D-C55D52C662F5}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -53,6 +55,10 @@ Global
 		{D9ABC56C-2BA9-4A45-81CE-595B7AF3C1EE}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D9ABC56C-2BA9-4A45-81CE-595B7AF3C1EE}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D9ABC56C-2BA9-4A45-81CE-595B7AF3C1EE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{60951FED-FE2E-48A1-BA2D-C55D52C662F5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{60951FED-FE2E-48A1-BA2D-C55D52C662F5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{60951FED-FE2E-48A1-BA2D-C55D52C662F5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{60951FED-FE2E-48A1-BA2D-C55D52C662F5}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -61,6 +67,7 @@ Global
 		{E7848BA7-02DE-44F4-B656-D37A9770CEA5} = {0D5ED126-6544-44DA-90A7-F1192F84A094}
 		{CF51B40C-4995-41EA-B7D0-8625ECD012CF} = {0D5ED126-6544-44DA-90A7-F1192F84A094}
 		{D9ABC56C-2BA9-4A45-81CE-595B7AF3C1EE} = {0D5ED126-6544-44DA-90A7-F1192F84A094}
+		{60951FED-FE2E-48A1-BA2D-C55D52C662F5} = {0D5ED126-6544-44DA-90A7-F1192F84A094}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {7019704D-9822-4B7A-A4E7-645173263472}

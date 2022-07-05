@@ -1,5 +1,6 @@
 ﻿using BlueCustomer.Core.Customers;
 using BlueCustomer.Core.Customers.ValueObjects;
+using BlueCustomer.Core.GeneralErrors;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,14 +14,14 @@ namespace BlueCustomer.Core.Tests.Customers;
 public class CustomerTests
 {
     [Test]
-    public void Constructor_Should_Create_Valid_Customer()
+    public void Create_Should_Create_Valid_Customer()
     {
         var id = Guid.NewGuid();
-        var name = new Name("John", "Joe");
-        var email = new Email("john@joe.com");
-        var password = new Password("password");
+        var name = Name.Create("John", "Joe").Value;
+        var email = Email.Create("john@joe.com").Value;
+        var password = Password.Create("password").Value;
 
-        var customer = new Customer(id, name, email, password);
+        var customer = Customer.Create(id, name, email, password).Value;
 
         customer.Should().NotBeNull();
         customer.Id.Should().Be(id);
@@ -33,13 +34,15 @@ public class CustomerTests
     public void Constructor_Should_Prevent_Create_When_Id_Is_Invalid()
     {
         var id = Guid.Empty;
-        var name = new Name("John", "Joe");
-        var email = new Email("john@joe.com");
-        var password = new Password("password");
+        var name = Name.Create("John", "Joe").Value;
+        var email = Email.Create("john@joe.com").Value;
+        var password = Password.Create("password").Value;
 
-        Action t = () => new Customer(id, name, email, password);
+        var createResult = Customer.Create(id, name, email, password);
 
-        t.Should().Throw<Exception>().WithMessage("Id is invalid");
+        createResult.IsFailed.Should().BeTrue();
+        createResult.HasError<ValueIsInvalid>().Should().BeTrue();
+        (createResult.Errors[0] as ValueIsInvalid).Message.Should().Be("id is invalid");
     }
 
     [Test]
@@ -47,12 +50,14 @@ public class CustomerTests
     {
         var id = Guid.NewGuid();
         Name name = null;
-        var email = new Email("john@joe.com");
-        var password = new Password("password");
+        var email = Email.Create("john@joe.com").Value;
+        var password = Password.Create("password").Value;
 
-        Action t = () => new Customer(id, name, email, password);
+        var createResult = Customer.Create(id, name, email, password);
 
-        t.Should().Throw<Exception>().WithMessage("Name is required");
+        createResult.IsFailed.Should().BeTrue();
+        createResult.HasError<ValueIsRequired>().Should().BeTrue();
+        (createResult.Errors[0] as ValueIsRequired).Message.Should().Be("name is required");
     }
 
 
@@ -60,13 +65,15 @@ public class CustomerTests
     public void Constructor_Should_Prevent_Create_When_Email_Is_Null()
     {
         var id = Guid.NewGuid();
-        var name = new Name("John", "Joe");
+        var name = Name.Create("John", "Joe").Value;
         Email email = null;
-        var password = new Password("password");
+        var password = Password.Create("password").Value;
 
-        Action t = () => new Customer(id, name, email, password);
+        var createResult = Customer.Create(id, name, email, password);
 
-        t.Should().Throw<Exception>().WithMessage("Email is required");
+        createResult.IsFailed.Should().BeTrue();
+        createResult.HasError<ValueIsRequired>().Should().BeTrue();
+        (createResult.Errors[0] as ValueIsRequired).Message.Should().Be("email is required");
     }
 
 
@@ -74,12 +81,14 @@ public class CustomerTests
     public void Constructor_Should_Prevent_Create_When_Password_Is_Null()
     {
         var id = Guid.NewGuid();
-        var name = new Name("John", "Joe");
-        var email = new Email("john@joe.com");
+        var name = Name.Create("John", "Joe").Value;
+        var email = Email.Create("john@joe.com").Value;
         Password password = null;
 
-        Action t = () => new Customer(id, name, email, password);
+        var createResult = Customer.Create(id, name, email, password);
 
-        t.Should().Throw<Exception>().WithMessage("Password is required");
+        createResult.IsFailed.Should().BeTrue();
+        createResult.HasError<ValueIsRequired>().Should().BeTrue();
+        (createResult.Errors[0] as ValueIsRequired).Message.Should().Be("password is required");
     }
 }

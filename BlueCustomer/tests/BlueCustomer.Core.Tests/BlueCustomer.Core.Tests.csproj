@@ -20,6 +20,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\..\tests\BlueCustomer.Tests.Common\BlueCustomer.Tests.Common.csproj" />
     <ProjectReference Include="..\..\source\BlueCustomer.Core\BlueCustomer.Core.csproj" />
   </ItemGroup>
 

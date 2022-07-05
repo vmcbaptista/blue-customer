@@ -5,6 +5,8 @@ using NSubstitute;
 using BlueCustomer.Core.Customers.Errors;
 using BlueCustomer.Core.Customers.Commands.Update;
 using Microsoft.AspNetCore.DataProtection;
+using System.Text;
+using BlueCustomer.Tests.Common;
 
 namespace BlueCustomer.Core.Tests.Customers.Commands.Update
 {
@@ -26,11 +28,12 @@ namespace BlueCustomer.Core.Tests.Customers.Commands.Update
         [Test]
         public async Task Handle_Shall_Return_Success_Result_When_Update_Succeeds()
         {
-            var originalCustomer = new AutoFaker<Customer>().Generate();
-            var customerToUpdate = new AutoFaker<UpdateCustomer>().RuleFor(c => c.Id, originalCustomer.Id).Generate();
+            var originalCustomer = new CustomerFaker().Generate();
+            var customerToUpdate = new AutoFaker<UpdateCustomer>().RuleFor(c => c.Id, originalCustomer.Id).RuleFor(c => c.Email, f => f.Internet.Email()).Generate();
             var cancellationToken = new CancellationToken();
             _customerRepository.GetCustomer(customerToUpdate.Id, cancellationToken).Returns(originalCustomer);
             _customerRepository.UpdateCustomer(Arg.Is<Customer>(c => c.Id == customerToUpdate.Id), cancellationToken).Returns(Task.CompletedTask);
+            _dataProtector.Protect(Arg.Any<byte[]>()).Returns(Encoding.UTF8.GetBytes("protected"));
 
             var result = await _underTest.Handle(customerToUpdate, cancellationToken);
 

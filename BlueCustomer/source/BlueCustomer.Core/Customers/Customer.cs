@@ -1,4 +1,6 @@
 ﻿using BlueCustomer.Core.Customers.ValueObjects;
+using BlueCustomer.Core.GeneralErrors;
+using FluentResults;
 
 namespace BlueCustomer.Core.Customers
 {
@@ -8,13 +10,8 @@ namespace BlueCustomer.Core.Customers
         private Customer() { }
 #pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
 
-        public Customer(Guid id, Name name, Email email, Password password)
+        private Customer(Guid id, Name name, Email email, Password password)
         {
-            if (id == Guid.Empty) throw new Exception("Id is invalid");
-            if (name == null) throw new Exception("Name is required");
-            if (email == null) throw new Exception("Email is required");
-            if (password == null) throw new Exception("Password is required");
-
             Id = id;
             Name = name;
             Email = email;
@@ -26,15 +23,27 @@ namespace BlueCustomer.Core.Customers
         public Email Email { get; private set; }
         public Password Password { get; private set; }
 
-        public void Update(Name name, Email email, Password password)
+        public static Result<Customer> Create(Guid id, Name name, Email email, Password password)
         {
-            if (name == null) throw new Exception("Name is required");
-            if (email == null) throw new Exception("Email is required");
-            if (password == null) throw new Exception("Password is required");
+            if (id == Guid.Empty) return Result.Fail(new ValueIsInvalid(nameof(id)));
+            if (name == null) return Result.Fail(new ValueIsRequired(nameof(name)));
+            if (email == null) return Result.Fail(new ValueIsRequired(nameof(email)));
+            if (password == null) return Result.Fail(new ValueIsRequired(nameof(password)));
+
+            return new Customer(id, name, email, password);
+        }
+
+        public Result Update(Name name, Email email, Password password)
+        {
+            if (name == null) return Result.Fail(new ValueIsRequired(nameof(name)));
+            if (email == null) return Result.Fail(new ValueIsRequired(nameof(email)));
+            if (password == null) return Result.Fail(new ValueIsRequired(nameof(password)));
 
             Name = name;
             Email = email;
             Password = password;
+
+            return Result.Ok();
         }
     }
 }

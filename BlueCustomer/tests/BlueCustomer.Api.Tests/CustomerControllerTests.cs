@@ -8,6 +8,7 @@ using BlueCustomer.Core.Customers.Commands.Update;
 using BlueCustomer.Core.Customers.Errors;
 using BlueCustomer.Core.Customers.Queries.GetAll;
 using BlueCustomer.Core.Customers.Queries.GetById;
+using BlueCustomer.Tests.Common;
 using FluentResults;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -38,7 +39,7 @@ namespace BlueCustomer.Api.Tests
         [Test]
         public async Task Get_Shall_Return_Collection_Of_All_Customers()
         {
-            var faker = new AutoFaker<Customer>();
+            var faker = new CustomerFaker();
             var customers = faker.Generate(3);
             var cancellationToken = new CancellationToken();
             _getAllCustomersHandler.Handle(new GetAllCustomers(), cancellationToken).Returns(customers);
@@ -58,7 +59,7 @@ namespace BlueCustomer.Api.Tests
         [Test]
         public async Task GetById_Shall_Return_The_Corresponding_Customer_When_Exists()
         {
-            var faker = new AutoFaker<Customer>();
+            var faker = new CustomerFaker();
             var customer = faker.Generate();
             var cancellationToken = new CancellationToken();
             _getCustomerByIdHandler.Handle(new GetCustomerById(customer.Id), cancellationToken).Returns(customer);

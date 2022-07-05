@@ -3,6 +3,9 @@ using BlueCustomer.Core.Customers;
 using BlueCustomer.Core.Customers.Errors;
 using BlueCustomer.Core.Customers.Queries.GetById;
 using BlueCustomer.Core.Customers.Repositories;
+using BlueCustomer.Core.Customers.ValueObjects;
+using BlueCustomer.Tests.Common;
+using Bogus;
 using NSubstitute;
 using System;
 using System.Collections.Generic;
@@ -28,7 +31,7 @@ namespace BlueCustomer.Core.Tests.Customers.Queries
         [Test]
         public async Task Handle_Shall_Return_The_Corresponding_Customer_When_Exists()
         {
-            var faker = new AutoFaker<Customer>();
+            var faker = new CustomerFaker();
             var customer = faker.Generate();
             var cancellationToken = new CancellationToken();
             _customerRepository.GetCustomer(customer.Id, cancellationToken).Returns(customer);

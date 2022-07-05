@@ -25,7 +25,7 @@ namespace BlueCustomer.Api.IntegrationTests
         [Test]
         public async Task Demo_All_Endpoints()
         {
-            var customerToInsert = new AutoFaker<CreateCustomer>().Generate();
+            var customerToInsert = new AutoFaker<CreateCustomer>().RuleFor(c => c.Email, f => f.Internet.Email()).Generate();
 
             var createResponse = await _httpClient.PostAsync($"{_url}", new StringContent(JsonConvert.SerializeObject(customerToInsert), Encoding.UTF8, "application/json"));
             createResponse.EnsureSuccessStatusCode();

@@ -4,6 +4,7 @@ using BlueCustomer.Core.Customers.Repositories;
 using NSubstitute;
 using BlueCustomer.Core.Customers.Commands.Delete;
 using BlueCustomer.Core.Customers.Errors;
+using BlueCustomer.Tests.Common;
 
 namespace BlueCustomer.Core.Tests.Customers.Commands.Delete
 {
@@ -23,7 +24,7 @@ namespace BlueCustomer.Core.Tests.Customers.Commands.Delete
         [Test]
         public async Task Handle_Shall_Return_Success_Result_When_Delete_Succeeds()
         {
-            var customerToDelete = new AutoFaker<Customer>().Generate();
+            var customerToDelete = new CustomerFaker().Generate();
             var cancellationToken = new CancellationToken();
             _customerRepository.GetCustomer(customerToDelete.Id, cancellationToken).Returns(customerToDelete);
             _customerRepository.DeleteCustomer(customerToDelete, cancellationToken).Returns(Task.CompletedTask);
@@ -38,7 +39,7 @@ namespace BlueCustomer.Core.Tests.Customers.Commands.Delete
         [Test]
         public async Task Handle_Shall_Return_404_When_Attempting_Delete_Of_Unavailable_Customer()
         {
-            var customerToDelete = new AutoFaker<Customer>().Generate();
+            var customerToDelete = new CustomerFaker().Generate();
             var cancellationToken = new CancellationToken();
             _customerRepository.GetCustomer(customerToDelete.Id, cancellationToken).Returns((Customer?)null);
 

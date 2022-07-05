@@ -18,9 +18,31 @@ namespace BlueCustomer.Core.Customers.Commands.Create
 
         public async Task<Result> Handle(CreateCustomer command, CancellationToken cancellationToken)
         {
-            var customer = new Customer(command.Id, new Name(command.FirstName, command.Surname), new Email(command.Email), new Password(_dataProtector.Protect(command.Password)));
+            var nameCreateResult = Name.Create(command.FirstName, command.Surname);
+            if (nameCreateResult.IsFailed)
+            {
+                return nameCreateResult.ToResult();
+            }
+            
+            var emailCreateResult = Email.Create(command.Email);
+            if (emailCreateResult.IsFailed)
+            {
+                return emailCreateResult.ToResult();
+            }
 
-            await _customerRepository.CreateCustomer(customer, cancellationToken).ConfigureAwait(false);
+            var passwordCreateResult = Password.Create(_dataProtector.Protect(command.Password));
+            if (passwordCreateResult.IsFailed)
+            {
+                return passwordCreateResult.ToResult();
+            }
+
+            var customerCreateResult = Customer.Create(command.Id, nameCreateResult.Value, emailCreateResult.Value, passwordCreateResult.Value);
+            if(customerCreateResult.IsFailed)
+            {
+                return customerCreateResult.ToResult();
+            }
+
+            await _customerRepository.CreateCustomer(customerCreateResult.Value, cancellationToken).ConfigureAwait(false);
             await _customerRepository.SaveChanges(cancellationToken).ConfigureAwait(false);
 
             return Result.Ok();

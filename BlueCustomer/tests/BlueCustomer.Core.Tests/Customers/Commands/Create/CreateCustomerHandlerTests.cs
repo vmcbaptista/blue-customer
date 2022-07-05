@@ -5,6 +5,7 @@ using BlueCustomer.Core.Customers.Commands.Create;
 using BlueCustomer.Core.Customers.Repositories;
 using Microsoft.AspNetCore.DataProtection;
 using NSubstitute;
+using System.Text;
 
 namespace BlueCustomer.Core.Tests.Customers.Commands.Create
 {
@@ -26,10 +27,11 @@ namespace BlueCustomer.Core.Tests.Customers.Commands.Create
         [Test]
         public async Task Handle_Shall_Return_Success_Result_When_Create_Succeeds()
         {
-            var insertCustomerDto = new AutoFaker<CreateCustomer>().Generate();
-            var insertCustomer = new Customer(insertCustomerDto.Id, new Name(insertCustomerDto.FirstName, insertCustomerDto.Surname), new Email(insertCustomerDto.Email), new Password(insertCustomerDto.Password));
+            var insertCustomerDto = new AutoFaker<CreateCustomer>().RuleFor(c => c.Email, f => f.Internet.Email()).Generate();
+            var insertCustomer = Customer.Create(insertCustomerDto.Id, Name.Create(insertCustomerDto.FirstName, insertCustomerDto.Surname).Value, Email.Create(insertCustomerDto.Email).Value, Password.Create(insertCustomerDto.Password).Value).Value;
             var cancellationToken = new CancellationToken();
             _customerRepository.CreateCustomer(Arg.Is<Customer>(c => c.Id == insertCustomerDto.Id), cancellationToken).Returns(Task.CompletedTask);
+            _dataProtector.Protect(Arg.Any<byte[]>()).Returns(Encoding.UTF8.GetBytes("protected"));
 
             var result = await _underTest.Handle(insertCustomerDto, cancellationToken);
 

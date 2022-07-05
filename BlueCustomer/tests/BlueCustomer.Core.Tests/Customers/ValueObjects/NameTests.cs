@@ -1,4 +1,5 @@
 ﻿using BlueCustomer.Core.Customers.ValueObjects;
+using BlueCustomer.Core.GeneralErrors;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,11 +12,11 @@ namespace BlueCustomer.Core.Tests.Customers.ValueObjects
     public class NameTests
     {
         [Test]
-        public void Constructor_Should_Create_Valid_Name()
+        public void Create_Should_Create_Valid_Name()
         {
             var firstName = "John";
             var surname = "Joe";
-            var name = new Name(firstName, surname);
+            var name = Name.Create(firstName, surname).Value;
 
             name.Should().NotBeNull();
             name.FirstName.Should().Be(firstName);
@@ -24,21 +25,25 @@ namespace BlueCustomer.Core.Tests.Customers.ValueObjects
 
         [TestCase("")]
         [TestCase(null)]
-        public void Constructor_Should_Prevent_Create_When_First_Name_Is_Not_Valid(string firstName)
+        public void Create_Should_Prevent_Create_When_First_Name_Is_Not_Valid(string firstName)
         {
-            Action t = () => new Name(firstName, "Joe");
+            var createResult = Name.Create(firstName, "Joe");
 
-            t.Should().Throw<Exception>().WithMessage("First name is invalid");
+            createResult.IsFailed.Should().BeTrue();
+            createResult.HasError<ValueIsRequired>().Should().BeTrue();
+            (createResult.Errors[0] as ValueIsRequired).Message.Should().Be("firstName is required");
 
         }
 
         [TestCase("")]
         [TestCase(null)]
-        public void Constructor_Should_Prevent_Create_When_Surname_Is_Not_Valid(string surname)
+        public void Create_Should_Prevent_Create_When_Surname_Is_Not_Valid(string surname)
         {
-            Action t = () => new Name("John", surname);
+            var createResult = Name.Create("John", surname);
 
-            t.Should().Throw<Exception>().WithMessage("Surname is invalid");
+            createResult.IsFailed.Should().BeTrue();
+            createResult.HasError<ValueIsRequired>().Should().BeTrue();
+            (createResult.Errors[0] as ValueIsRequired).Message.Should().Be("surname is required");
 
         }
     }
