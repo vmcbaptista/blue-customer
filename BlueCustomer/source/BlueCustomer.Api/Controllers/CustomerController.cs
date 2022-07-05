@@ -1,13 +1,14 @@
 ﻿using BlueCustomer.Api.Models;
-using BlueCustomer.Core.Commands;
-using BlueCustomer.Core.Entities;
-using BlueCustomer.Core.Errors;
-using BlueCustomer.Core.Handlers;
-using BlueCustomer.Core.Queries;
-using BlueCustomer.Core.Repositories;
-using BlueCustomer.Core.ValueObjects;
+using BlueCustomer.Core.Customers.Commands.Delete;
+using BlueCustomer.Core.Customers.Queries.GetAll;
+using BlueCustomer.Core.Customers;
+using BlueCustomer.Core.Customers.Commands.Create;
+using BlueCustomer.Core.Customers.Commands.Delete;
+using BlueCustomer.Core.Customers.Commands.Update;
+using BlueCustomer.Core.Customers.Errors;
+using BlueCustomer.Core.Customers.Queries.GetAll;
+using BlueCustomer.Core.Customers.Queries.GetById;
 using FluentResults;
-using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Mvc;
 
 namespace BlueCustomer.Api.Controllers
@@ -16,37 +17,46 @@ namespace BlueCustomer.Api.Controllers
     [ApiController]
     public class CustomerController : ControllerBase
     {
-        private readonly ICustomerRepository _customerRepository;
-        private readonly IDataProtector _dataProtector;
         private readonly IUpdateCustomerHandler _updateCommandHandler;
         private readonly IGetCustomerByIdHandler _getCustomerByIdHandler;
+        private readonly IGetAllCustomersHandler _getAllCustomersHandler;
+        private readonly ICreateCustomerHandler _createCustomerHandler;
+        private readonly IDeleteCustomerHandler _deleteCustomerHandler;
 
-        public CustomerController(ICustomerRepository customerRepository, IDataProtector dataProtector, IUpdateCustomerHandler commandHandler, IGetCustomerByIdHandler getCustomerByIdHandler)
+        public CustomerController(IUpdateCustomerHandler commandHandler, IGetCustomerByIdHandler getCustomerByIdHandler, ICreateCustomerHandler createCustomerHandler, IDeleteCustomerHandler deleteCustomerHandler, IGetAllCustomersHandler getAllCustomersHandler)
         {
-            _customerRepository = customerRepository;
-            _dataProtector = dataProtector;
             _updateCommandHandler = commandHandler;
             _getCustomerByIdHandler = getCustomerByIdHandler;
+            _createCustomerHandler = createCustomerHandler;
+            _deleteCustomerHandler = deleteCustomerHandler;
+            _getAllCustomersHandler = getAllCustomersHandler;
         }
 
         [HttpGet]
         public async Task<ActionResult<IEnumerable<CustomerDto>>> Get(CancellationToken cancellationToken)
         {
-            var customers = await _customerRepository.GetCustomers(cancellationToken).ConfigureAwait(false);
-            return Ok(customers.Select(MapCustomerToReadDto));
+            var getAllCustomersResult = await _getAllCustomersHandler.Handle(new GetAllCustomers(), cancellationToken).ConfigureAwait(false);
+
+            if (getAllCustomersResult.IsFailed)
+            {
+
+                return Problem(getAllCustomersResult);
+            }
+
+            return Ok(getAllCustomersResult.Value.Select(MapCustomerToReadDto));
         }
 
         [HttpGet("{id:Guid}")]
         public async Task<ActionResult<CustomerDto>> GetById(Guid id, CancellationToken cancellationToken)
         {
-           var getCustomerByIdResult = await _getCustomerByIdHandler.Handle(new GetCustomerById(id), cancellationToken).ConfigureAwait(false);
+            var getCustomerByIdResult = await _getCustomerByIdHandler.Handle(new GetCustomerById(id), cancellationToken).ConfigureAwait(false);
 
             if (getCustomerByIdResult.IsSuccess)
             {
                 return Ok(MapCustomerToReadDto(getCustomerByIdResult.Value));
             }
 
-            if (getCustomerByIdResult.HasError<DomainErrors.Customer.NotFound>())
+            if (getCustomerByIdResult.HasError<CustomerNotFound>())
             {
                 return NotFound();
             }
@@ -55,11 +65,23 @@ namespace BlueCustomer.Api.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult<CustomerDto>> Post([FromBody] UpsertCustomerDto customerDto, CancellationToken cancellationToken)
+        public async Task<ActionResult<CustomerDto>> Post([FromBody] CreateCustomer createCustomer, CancellationToken cancellationToken)
         {
-            await _customerRepository.CreateCustomer(MapUpsertDtoToCustomer(customerDto), cancellationToken);
-            await _customerRepository.SaveChanges(cancellationToken).ConfigureAwait(false);
-            return CreatedAtAction(nameof(GetById), new { id = customerDto.Id }, MapUpsertDtoToReadDto(customerDto));
+
+            var createResult = await _createCustomerHandler.Handle(createCustomer, cancellationToken).ConfigureAwait(false);
+
+            if (createResult.IsSuccess)
+            {
+                return CreatedAtAction(nameof(GetById), new { id = createCustomer.Id }, MapCreateDtoToReadDto(createCustomer));
+            }
+
+            if (createResult.HasError<CustomerNotFound>())
+            {
+                return NotFound();
+            }
+
+            return Problem(createResult);
+
         }
 
         [HttpPut("{id:Guid}")]
@@ -77,8 +99,8 @@ namespace BlueCustomer.Api.Controllers
                 return NoContent();
             }
 
-            if (updateResult.HasError<DomainErrors.Customer.NotFound>()) 
-            { 
+            if (updateResult.HasError<CustomerNotFound>())
+            {
                 return NotFound();
             }
 
@@ -88,17 +110,19 @@ namespace BlueCustomer.Api.Controllers
         [HttpDelete("{id:Guid}")]
         public async Task<ActionResult> DeleteAsync(Guid id, CancellationToken cancellationToken)
         {
-            var customer = await _customerRepository.GetCustomer(id, cancellationToken).ConfigureAwait(false);
-            
-            if (customer == null)
+            var deleteResult = await _deleteCustomerHandler.Handle(new DeleteCustomer(id), cancellationToken).ConfigureAwait(false);
+
+            if (deleteResult.IsSuccess)
+            {
+                return NoContent();
+            }
+
+            if (deleteResult.HasError<CustomerNotFound>())
             {
                 return NotFound();
             }
-            
-            await _customerRepository.DeleteCustomer(customer, cancellationToken);
-            await _customerRepository.SaveChanges(cancellationToken).ConfigureAwait(false);
 
-            return NoContent();
+            return Problem(deleteResult);
         }
 
         private ObjectResult Problem(ResultBase result)
@@ -106,7 +130,7 @@ namespace BlueCustomer.Api.Controllers
             return Problem(string.Join(';', result.Errors));
         }
 
-        private CustomerDto MapUpsertDtoToReadDto(UpsertCustomerDto customer)
+        private CustomerDto MapCreateDtoToReadDto(CreateCustomer customer)
         {
             return new CustomerDto(customer.Id, customer.FirstName, customer.Surname, customer.Email);
         }
@@ -114,16 +138,6 @@ namespace BlueCustomer.Api.Controllers
         private CustomerDto MapCustomerToReadDto(Customer customer)
         {
             return new CustomerDto(customer.Id, customer.Name.FirstName, customer.Name.Surname, customer.Email.Value);
-        }
-
-        private Customer MapUpsertDtoToCustomer(UpsertCustomerDto customer)
-        {
-            var id = customer.Id;
-            var name = new Name(customer.FirstName, customer.Surname);
-            var email = new Email(customer.Email);
-            var password = new Password(_dataProtector.Protect(customer.Password));
-
-            return new Customer(id, name, email, password);
         }
     }
 }

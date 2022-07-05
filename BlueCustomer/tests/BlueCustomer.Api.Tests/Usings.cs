@@ -1,4 +1,3 @@
-global using NUnit.Framework;
-global using Bogus;
-global using NSubstitute;
 global using FluentAssertions;
+global using NSubstitute;
+global using NUnit.Framework;
