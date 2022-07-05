@@ -1,4 +1,4 @@
-﻿using BlueCustomer.Core.Entities;
+﻿using BlueCustomer.Core.Customers;
 using Microsoft.EntityFrameworkCore;
 
 namespace BlueCustomer.Infrastructure

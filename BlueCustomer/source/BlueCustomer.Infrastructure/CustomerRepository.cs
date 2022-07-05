@@ -1,5 +1,5 @@
-﻿using BlueCustomer.Core.Entities;
-using BlueCustomer.Core.Repositories;
+﻿using BlueCustomer.Core.Customers;
+using BlueCustomer.Core.Customers.Repositories;
 using Microsoft.EntityFrameworkCore;
 
 namespace BlueCustomer.Infrastructure

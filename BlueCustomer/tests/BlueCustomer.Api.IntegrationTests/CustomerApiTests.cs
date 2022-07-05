@@ -1,5 +1,6 @@
 using AutoBogus;
 using BlueCustomer.Api.Models;
+using BlueCustomer.Core.Customers.Commands.Create;
 using Microsoft.Data.SqlClient;
 using Newtonsoft.Json;
 using System.Text;
@@ -24,7 +25,7 @@ namespace BlueCustomer.Api.IntegrationTests
         [Test]
         public async Task Demo_All_Endpoints()
         {
-            var customerToInsert = new AutoFaker<UpsertCustomerDto>().Generate();
+            var customerToInsert = new AutoFaker<CreateCustomer>().Generate();
 
             var createResponse = await _httpClient.PostAsync($"{_url}", new StringContent(JsonConvert.SerializeObject(customerToInsert), Encoding.UTF8, "application/json"));
             createResponse.EnsureSuccessStatusCode();
