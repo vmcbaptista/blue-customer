@@ -1,6 +1,4 @@
 ﻿using BlueCustomer.Api.Models;
-using BlueCustomer.Core.Customers.Commands.Delete;
-using BlueCustomer.Core.Customers.Queries.GetAll;
 using BlueCustomer.Core.Customers;
 using BlueCustomer.Core.Customers.Commands.Create;
 using BlueCustomer.Core.Customers.Commands.Delete;

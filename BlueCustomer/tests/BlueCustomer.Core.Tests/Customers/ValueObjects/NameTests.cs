@@ -1,10 +1,5 @@
 ﻿using BlueCustomer.Core.Customers.ValueObjects;
 using BlueCustomer.Core.GeneralErrors;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace BlueCustomer.Core.Tests.Customers.ValueObjects
 {

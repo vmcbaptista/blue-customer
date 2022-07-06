@@ -9,7 +9,7 @@ namespace BlueCustomer.Api.IntegrationTests
 {
     public class CustomerApiTests
     {
-        private string _endpoint = "/api/customer";
+        private readonly string _endpoint = "/api/customer";
         private string _url;
         private string _connectionString;
         private HttpClient _httpClient;

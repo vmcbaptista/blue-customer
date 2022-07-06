@@ -1,8 +1,8 @@
 ﻿using AutoBogus;
-using BlueCustomer.Core.Customers.ValueObjects;
 using BlueCustomer.Core.Customers;
 using BlueCustomer.Core.Customers.Commands.Create;
 using BlueCustomer.Core.Customers.Repositories;
+using BlueCustomer.Core.Customers.ValueObjects;
 using Microsoft.AspNetCore.DataProtection;
 using NSubstitute;
 using System.Text;

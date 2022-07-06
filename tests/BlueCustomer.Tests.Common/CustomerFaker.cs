@@ -1,11 +1,6 @@
 ﻿using BlueCustomer.Core.Customers;
 using BlueCustomer.Core.Customers.ValueObjects;
 using Bogus;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace BlueCustomer.Tests.Common
 {

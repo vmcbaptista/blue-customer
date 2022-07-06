@@ -1,17 +1,9 @@
-﻿using AutoBogus;
-using BlueCustomer.Core.Customers;
+﻿using BlueCustomer.Core.Customers;
 using BlueCustomer.Core.Customers.Errors;
 using BlueCustomer.Core.Customers.Queries.GetById;
 using BlueCustomer.Core.Customers.Repositories;
-using BlueCustomer.Core.Customers.ValueObjects;
 using BlueCustomer.Tests.Common;
-using Bogus;
 using NSubstitute;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace BlueCustomer.Core.Tests.Customers.Queries
 {

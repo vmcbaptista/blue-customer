@@ -1,5 +1,4 @@
-﻿using BlueCustomer.Core.Customers.Errors;
-using BlueCustomer.Core.GeneralErrors;
+﻿using BlueCustomer.Core.GeneralErrors;
 using FluentResults;
 using System.Text.RegularExpressions;
 

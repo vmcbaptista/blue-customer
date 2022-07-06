@@ -1,6 +1,6 @@
 ﻿using BlueCustomer.Core.Customers.Errors;
-using BlueCustomer.Core.Customers.ValueObjects;
 using BlueCustomer.Core.Customers.Repositories;
+using BlueCustomer.Core.Customers.ValueObjects;
 using FluentResults;
 using Microsoft.AspNetCore.DataProtection;
 

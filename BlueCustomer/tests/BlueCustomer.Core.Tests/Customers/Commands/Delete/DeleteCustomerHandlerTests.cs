@@ -1,10 +1,9 @@
-﻿using AutoBogus;
-using BlueCustomer.Core.Customers;
-using BlueCustomer.Core.Customers.Repositories;
-using NSubstitute;
+﻿using BlueCustomer.Core.Customers;
 using BlueCustomer.Core.Customers.Commands.Delete;
 using BlueCustomer.Core.Customers.Errors;
+using BlueCustomer.Core.Customers.Repositories;
 using BlueCustomer.Tests.Common;
+using NSubstitute;
 
 namespace BlueCustomer.Core.Tests.Customers.Commands.Delete
 {

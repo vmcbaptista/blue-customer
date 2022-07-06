@@ -23,7 +23,7 @@ namespace BlueCustomer.Core.Customers.Commands.Create
             {
                 return nameCreateResult.ToResult();
             }
-            
+
             var emailCreateResult = Email.Create(command.Email);
             if (emailCreateResult.IsFailed)
             {
@@ -37,7 +37,7 @@ namespace BlueCustomer.Core.Customers.Commands.Create
             }
 
             var customerCreateResult = Customer.Create(command.Id, nameCreateResult.Value, emailCreateResult.Value, passwordCreateResult.Value);
-            if(customerCreateResult.IsFailed)
+            if (customerCreateResult.IsFailed)
             {
                 return customerCreateResult.ToResult();
             }

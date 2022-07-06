@@ -1,12 +1,12 @@
 ﻿using AutoBogus;
 using BlueCustomer.Core.Customers;
-using BlueCustomer.Core.Customers.Repositories;
-using NSubstitute;
-using BlueCustomer.Core.Customers.Errors;
 using BlueCustomer.Core.Customers.Commands.Update;
-using Microsoft.AspNetCore.DataProtection;
-using System.Text;
+using BlueCustomer.Core.Customers.Errors;
+using BlueCustomer.Core.Customers.Repositories;
 using BlueCustomer.Tests.Common;
+using Microsoft.AspNetCore.DataProtection;
+using NSubstitute;
+using System.Text;
 
 namespace BlueCustomer.Core.Tests.Customers.Commands.Update
 {
