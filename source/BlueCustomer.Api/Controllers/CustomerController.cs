@@ -15,15 +15,15 @@ namespace BlueCustomer.Api.Controllers
     [ApiController]
     public class CustomerController : ControllerBase
     {
-        private readonly IUpdateCustomerHandler _updateCommandHandler;
+        private readonly IUpdateCustomerHandler _updateCustomerHandler;
         private readonly IGetCustomerByIdHandler _getCustomerByIdHandler;
         private readonly IGetAllCustomersHandler _getAllCustomersHandler;
         private readonly ICreateCustomerHandler _createCustomerHandler;
         private readonly IDeleteCustomerHandler _deleteCustomerHandler;
 
-        public CustomerController(IUpdateCustomerHandler commandHandler, IGetCustomerByIdHandler getCustomerByIdHandler, ICreateCustomerHandler createCustomerHandler, IDeleteCustomerHandler deleteCustomerHandler, IGetAllCustomersHandler getAllCustomersHandler)
+        public CustomerController(IUpdateCustomerHandler updateCustomerHandler, IGetCustomerByIdHandler getCustomerByIdHandler, ICreateCustomerHandler createCustomerHandler, IDeleteCustomerHandler deleteCustomerHandler, IGetAllCustomersHandler getAllCustomersHandler)
         {
-            _updateCommandHandler = commandHandler;
+            _updateCustomerHandler = updateCustomerHandler;
             _getCustomerByIdHandler = getCustomerByIdHandler;
             _createCustomerHandler = createCustomerHandler;
             _deleteCustomerHandler = deleteCustomerHandler;
@@ -90,7 +90,7 @@ namespace BlueCustomer.Api.Controllers
                 return BadRequest();
             }
 
-            var updateResult = await _updateCommandHandler.Handle(updateCustomer, cancellationToken).ConfigureAwait(false);
+            var updateResult = await _updateCustomerHandler.Handle(updateCustomer, cancellationToken).ConfigureAwait(false);
 
             if (updateResult.IsSuccess)
             {
