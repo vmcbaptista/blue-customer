@@ -5,6 +5,7 @@ services:
     image: ${DOCKER_REGISTRY-}bluecustomerapi
     ports:
       - "8081:80"
+      - "80"
     build:
       context: source
       dockerfile: BlueCustomer.Api/Dockerfile
