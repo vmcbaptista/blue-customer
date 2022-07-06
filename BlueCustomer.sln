@@ -19,7 +19,7 @@ Project("{E53339B2-1760-4266-BCC7-CA923CBCF16C}") = "docker-compose", "docker-co
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BlueCustomer.Api.IntegrationTests", "tests\BlueCustomer.Api.IntegrationTests\BlueCustomer.Api.IntegrationTests.csproj", "{D9ABC56C-2BA9-4A45-81CE-595B7AF3C1EE}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BlueCustomer.Tests.Common", "..\tests\BlueCustomer.Tests.Common\BlueCustomer.Tests.Common.csproj", "{60951FED-FE2E-48A1-BA2D-C55D52C662F5}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BlueCustomer.Tests.Common", "tests\BlueCustomer.Tests.Common\BlueCustomer.Tests.Common.csproj", "{60951FED-FE2E-48A1-BA2D-C55D52C662F5}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
